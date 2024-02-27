@@ -46,6 +46,13 @@ private:
     int numPassengers;
     vector<Passenger> passengers;
 public:
+    Flight(string n, string d)
+    {
+        maxSeats = 40;
+        flightNo = n;
+        destination = d;
+        numPassengers = 0;
+    }
     void reserveSeat(const Passenger& passenger);
     void cancelReservation(const Passenger& passenger);
     int numberOfPassengers();
@@ -57,6 +64,7 @@ class FlightManager
 {
 private:
     vector<Flight>flights;
+    int numFlights;
 public:
     void addFlight(const Flight &flight);
     void removeFlight(const string& flightNumber);
@@ -65,10 +73,20 @@ public:
     Flight getFlightByDestination(const string& destination);
 };
 
-int printMenu()
+void FlightManager::addFlight(const Flight &flight)
+{
+    flights.push_back(flight);
+}
+
+void FlightManager::removeFlight(const std::string &flightNumber)
+{
+
+}
+
+int flightMenu()
 {
     int opChoice;
-    cout << "Menu" << endl;
+    cout << "Flight Management Menu" << endl;
     cout << "1. Add a Flight" << endl;
     cout << "2. Remove a Flight" << endl;
     cout << "3. List All Flight" << endl;
@@ -79,20 +97,43 @@ int printMenu()
     return opChoice;
 }
 
+int passengerMenu()
+{
+    int opChoice;
+    cout << "Passenger Management Menu" << endl;
+    cout << "1. Reserve a Seat" << endl;
+    cout << "2. Cancel a Reservation" << endl;
+    cout << "3. View Passenger List" << endl;
+    cout << "4. Back to Flight Management Menu" << endl;
+    cout << "Choose: ";
+    cin >> opChoice;
+    return opChoice;
+}
+
 int main() {
 
-    int choice;
+    int choice, choiceP;
+    string flightNo, destination;
+    bool loop;
+
+    FlightManager Airline;
 
     do
     {
-        choice = printMenu();
+        choice = flightMenu();
         if(choice == 1)
         {
-
+            cout << "Enter the flight number: ";
+            cin >> flightNo;
+            cout << "Enter the destination: ";
+            cin >> destination;
+            Flight flight(flightNo, destination);
+            Airline.addFlight(flight);
         }
         else if(choice == 2)
         {
-
+            cout << "Enter the flight number: ";
+            cin >> flightNo;
         }
         else if(choice == 3)
         {
@@ -100,7 +141,30 @@ int main() {
         }
         else if(choice == 4)
         {
+            loop = true;
+            cout << "Enter the flight number: ";
+            cin >> flightNo;
 
+            do
+            {
+                choiceP = passengerMenu();
+                if(choiceP == 1)
+                {
+
+                }
+                else if(choiceP == 2)
+                {
+
+                }
+                else if(choiceP == 3)
+                {
+
+                }
+                else if(choice == 4)
+                {
+                    loop = false;
+                }
+            }while(loop);
         }
         else if(choice == 5)
         {
