@@ -47,6 +47,7 @@ private:
     vector<Passenger> passengers;
 public:
     Flight(string n, string d): destination(d), maxSeats(40), flightNo(n), numPassengers(0){}
+    Flight() : maxSeats(40), numPassengers(0) {}
     void reserveSeat(const Passenger& passenger);
     void cancelReservation(const Passenger& passenger);
     int numberOfPassengers() { return numPassengers; }
@@ -54,9 +55,26 @@ public:
     bool isFlyingTo(const string& destination);
 
     //I added those functions:
+    void setFlightNo(string n) { flightNo = n; }
+    void setDestination(string d) { destination = d; }
+    void setSeats(int s) { maxSeats = s; }
+    void setPassengers(int p) { numPassengers = p; }
+
     string getFlightNo() { return flightNo; }
     string getDestination() { return destination; }
+    int getSeats() { return maxSeats; }
+    int getPassengers() { return numPassengers; }
+
     void printInfo();
+
+    Flight operator=(Flight const& obj)
+    {
+        Flight temp;
+        temp.setFlightNo(obj.flightNo);
+        temp.setDestination(obj.destination);
+        temp.setPassengers(obj.numPassengers);
+        return temp;
+    }
 };
 
 void Flight::reserveSeat(const Passenger &passenger)
@@ -88,6 +106,7 @@ void Flight::printInfo()
     cout << "\n";
     cout << flightNo << " / " << destination << endl;
     cout << "Available seat numbers: " << (maxSeats-numPassengers) << endl;
+    cout << "\n";
 }
 
 class FlightManager
@@ -97,7 +116,7 @@ private:
     int numFlights = 0; //I added this one
 public:
     void addFlight(const Flight &flight);
-    void removeFlight(const string& flightNumber);
+    bool removeFlight(const string& flightNumber);
     void listAllFlights();
     Flight getFlightByNumber(const string& flightNumber);
     Flight getFlightByDestination(const string& destination);
@@ -109,15 +128,24 @@ void FlightManager::addFlight(const Flight &flight)
     numFlights++;
 }
 
-void FlightManager::removeFlight(const string &flightNumber)
+bool FlightManager::removeFlight(const string &flightNumber)
 {
     for(int i=0; i < numFlights; i++)
     {
         if(flights[i].getFlightNo() == flightNumber)
         {
-            
+            for(int j=i+1; j < numFlights; j++)
+            {
+                flights[i].setFlightNo(flights[j].getFlightNo());
+                flights[i].setDestination(flights[j].getDestination());
+                flights[i].setSeats(flights[j].getSeats());
+                flights[i].setPassengers(flights[j].getPassengers());
+            }
+            numFlights--;
+            return true;
         }
     }
+    return false;
 }
 
 void FlightManager::listAllFlights()
@@ -180,19 +208,32 @@ int passengerMenu()
 string seatPlan()
 {
     string seatChoice;
+    string seatPlan[10][4];
+    string c = "A";
     cout << "Legend: " << endl;
     cout << "X - Occupied Seat" << endl;
     cout << "O - Vacant Seat" << endl;
     cout << "\nSeating Plan:" << endl;
     cout << "----------Front----------" << endl;
-
+    for(int i=0; i < 10; i++)
+    {
+        for(int j=0; j < 4; j++)
+        {
+            seatPlan[i][j] = to_string(i+1)+c+" "+"O";
+            cout << "|     "<< seatPlan[i][j] << "     |";
+        }
+        cout << "\n";
+    }
+    cout << "Choose the seat: ";
+    cin >> seatChoice;
+    
 }
 
 int main() {
 
     int choice, choiceP;
     string flightNo, destination, seatChoice;
-    bool loop;
+    bool loop, checkRemoveF;
 
     FlightManager airline;
 
@@ -212,6 +253,15 @@ int main() {
         {
             cout << "Enter the flight number: ";
             cin >> flightNo;
+            checkRemoveF = airline.removeFlight(flightNo);
+            if(checkRemoveF)
+            {
+                cout << "Successfully removed" << endl;
+            }
+            else
+            {
+                cout << "Could not removed" << endl;
+            }
         }
         else if(choice == 3)
         {
@@ -222,6 +272,7 @@ int main() {
             loop = true;
             cout << "Enter the flight number: ";
             cin >> flightNo;
+            Flight selectedFlight = airline.getFlightByNumber(flightNo);
 
             do
             {
@@ -229,6 +280,7 @@ int main() {
                 if(choiceP == 1)
                 {
                     seatChoice = seatPlan();
+
 
                 }
                 else if(choiceP == 2)
