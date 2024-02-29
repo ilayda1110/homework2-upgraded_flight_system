@@ -46,25 +46,55 @@ private:
     int numPassengers;
     vector<Passenger> passengers;
 public:
-    Flight(string n, string d)
-    {
-        maxSeats = 40;
-        flightNo = n;
-        destination = d;
-        numPassengers = 0;
-    }
+    Flight(string n, string d): destination(d), maxSeats(40), flightNo(n), numPassengers(0){}
     void reserveSeat(const Passenger& passenger);
     void cancelReservation(const Passenger& passenger);
-    int numberOfPassengers();
+    int numberOfPassengers() { return numPassengers; }
     void printPassengers();
     bool isFlyingTo(const string& destination);
+
+    //I added those functions:
+    string getFlightNo() { return flightNo; }
+    string getDestination() { return destination; }
+    void printInfo();
 };
+
+void Flight::reserveSeat(const Passenger &passenger)
+{
+
+}
+
+void Flight::cancelReservation(const Passenger &passenger)
+{
+
+
+}
+
+void Flight::printPassengers()
+{
+    for(int i=0; i < numPassengers; i++)
+    {
+        cout << passengers[i];
+    }
+}
+
+bool Flight::isFlyingTo(const string& destination)
+{
+    cout << "Flight is flying to " << destination << endl;
+}
+
+void Flight::printInfo()
+{
+    cout << "\n";
+    cout << flightNo << " / " << destination << endl;
+    cout << "Available seat numbers: " << (maxSeats-numPassengers) << endl;
+}
 
 class FlightManager
 {
 private:
     vector<Flight>flights;
-    int numFlights;
+    int numFlights = 0; //I added this one
 public:
     void addFlight(const Flight &flight);
     void removeFlight(const string& flightNumber);
@@ -76,11 +106,48 @@ public:
 void FlightManager::addFlight(const Flight &flight)
 {
     flights.push_back(flight);
+    numFlights++;
 }
 
-void FlightManager::removeFlight(const std::string &flightNumber)
+void FlightManager::removeFlight(const string &flightNumber)
 {
+    for(int i=0; i < numFlights; i++)
+    {
+        if(flights[i].getFlightNo() == flightNumber)
+        {
+            
+        }
+    }
+}
 
+void FlightManager::listAllFlights()
+{
+    for(int i=0; i < numFlights; i++)
+    {
+        flights[i].printInfo();
+    }
+}
+
+Flight FlightManager::getFlightByNumber(const std::string &flightNumber)
+{
+    for(int i=0; i < numFlights; i++)
+    {
+        if(flights[i].getFlightNo() == flightNumber)
+        {
+            return flights[i];
+        }
+    }
+}
+
+Flight FlightManager::getFlightByDestination(const std::string &destination)
+{
+    for(int i=0; i < numFlights; i++)
+    {
+        if(flights[i].getDestination() == destination)
+        {
+            return flights[i];
+        }
+    }
 }
 
 int flightMenu()
@@ -110,13 +177,24 @@ int passengerMenu()
     return opChoice;
 }
 
+string seatPlan()
+{
+    string seatChoice;
+    cout << "Legend: " << endl;
+    cout << "X - Occupied Seat" << endl;
+    cout << "O - Vacant Seat" << endl;
+    cout << "\nSeating Plan:" << endl;
+    cout << "----------Front----------" << endl;
+
+}
+
 int main() {
 
     int choice, choiceP;
-    string flightNo, destination;
+    string flightNo, destination, seatChoice;
     bool loop;
 
-    FlightManager Airline;
+    FlightManager airline;
 
     do
     {
@@ -128,7 +206,7 @@ int main() {
             cout << "Enter the destination: ";
             cin >> destination;
             Flight flight(flightNo, destination);
-            Airline.addFlight(flight);
+            airline.addFlight(flight);
         }
         else if(choice == 2)
         {
@@ -137,7 +215,7 @@ int main() {
         }
         else if(choice == 3)
         {
-
+            airline.listAllFlights();
         }
         else if(choice == 4)
         {
@@ -150,6 +228,7 @@ int main() {
                 choiceP = passengerMenu();
                 if(choiceP == 1)
                 {
+                    seatChoice = seatPlan();
 
                 }
                 else if(choiceP == 2)
