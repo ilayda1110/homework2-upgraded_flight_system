@@ -3,12 +3,26 @@
 
 using namespace std;
 
+class Seat
+{
+private:
+    string seatNo;
+    char occupied;
+public:
+    void setSeatNo(string s) { seatNo = s; }
+    void setOccupied(char o) { occupied = o; }
+    string getSeatNo() { return seatNo; }
+    char getOccupied() { return occupied; }
+
+};
+
 class Passenger
 {
 private:
     string name;
     string surname;
     char gender;
+    Seat seat;
 public:
     Passenger()
     {
@@ -24,6 +38,11 @@ public:
     void setName(string n) { name = n; }
     void setSurname(string s) { surname = s; }
     void setGender(char g) { gender = g; }
+    void setSeat(string n)
+    {
+        seat.setSeatNo(n);
+        seat.setOccupied('X');
+    }
     string getName() { return name; }
     string getSurname() { return surname; }
     char getGender() { return gender; }
@@ -37,18 +56,6 @@ public:
     }
 };
 
-class Seat
-{
-private:
-    string seatNo;
-    char occupied;
-public:
-    void setSeatNo(string s) { seatNo = s; }
-    void setOccupied(char o) { occupied = o; }
-    string getSeatNo() { return seatNo; }
-    char getOccupied() { return occupied; }
-
-};
 
 class Flight
 {
@@ -78,7 +85,7 @@ public:
     }
     Flight() : maxSeats(40), numPassengers(0) {}
     bool reserveSeat(const Passenger& passenger);
-    void cancelReservation(const Passenger& passenger);
+    bool cancelReservation(const Passenger& passenger);
     int numberOfPassengers() { return numPassengers; }
     void printPassengers();
     bool isFlyingTo(const string& destination);
@@ -133,6 +140,8 @@ bool Flight::reserveSeat(const Passenger &passenger)
             {
                 if(seats[i][j].getOccupied() == 'O')
                 {
+                    passenger.setSeat(seats[i][j].getSeatNo());
+
                     return true;
                 }
             }
@@ -141,9 +150,15 @@ bool Flight::reserveSeat(const Passenger &passenger)
     return false;
 }
 
-void Flight::cancelReservation(const Passenger &passenger)
+bool Flight::cancelReservation(const Passenger &passenger)
 {
+    for(int i=0; i < numPassengers; i++)
+    {
+        if((passenger.getName() == passengers[i].getName()) && passenger.getSurname() == passengers[i].getSurname())
+        {
 
+        }
+    }
 
 }
 
