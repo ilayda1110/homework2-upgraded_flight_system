@@ -37,6 +37,18 @@ public:
     }
 };
 
+class Seats
+{
+private:
+    string seatNo;
+    char occupied;
+public:
+    void setSeatNo(string s) { seatNo = s; }
+    void setOccupied(char o) { occupied = o; }
+    string getSeatNo() { return seatNo; }
+    char getOccupied() { return occupied; }
+};
+
 class Flight
 {
 private:
@@ -45,8 +57,24 @@ private:
     int maxSeats;
     int numPassengers;
     vector<Passenger> passengers;
+
+    //I added this one
+    Seats seats[10][4];
 public:
-    Flight(string n, string d): destination(d), maxSeats(40), flightNo(n), numPassengers(0){}
+    Flight(string n, string d): destination(d), maxSeats(40), flightNo(n), numPassengers(0)
+    {
+        char c = 'A';
+        for(int i=0; i < 10; i++)
+        {
+            for(int j=0; j < 4; j++)
+            {
+                seats[i][j].setSeatNo(to_string(i+1)+c);
+                seats[i][j].setOccupied('O');
+                c++;
+            }
+            c = 'A';
+        }
+    }
     Flight() : maxSeats(40), numPassengers(0) {}
     void reserveSeat(const Passenger& passenger);
     void cancelReservation(const Passenger& passenger);
@@ -75,6 +103,8 @@ public:
         temp.setPassengers(obj.numPassengers);
         return temp;
     }
+
+    void printSeats();
 };
 
 void Flight::reserveSeat(const Passenger &passenger)
@@ -107,6 +137,24 @@ void Flight::printInfo()
     cout << flightNo << " / " << destination << endl;
     cout << "Available seat numbers: " << (maxSeats-numPassengers) << endl;
     cout << "\n";
+}
+
+void Flight::printSeats()
+{
+    cout << "Legend: " << endl;
+    cout << "X - Occupied Seat" << endl;
+    cout << "O - Vacant Seat" << endl;
+    cout << "\nSeating Plan:" << endl;
+    cout << "----------Front----------" << endl;
+
+    for(int i=0; i < 10; i++)
+    {
+        for(int j=0; j < 4; j++)
+        {
+            cout << "|  " << seats[i][j].getSeatNo() << " " << seats[i][j].getOccupied() << "  ";
+        }
+        cout << "\n";
+    }
 }
 
 class FlightManager
@@ -205,28 +253,13 @@ int passengerMenu()
     return opChoice;
 }
 
-string seatPlan()
+string seatPlan(Flight flight)
 {
     string seatChoice;
-    string seatPlan[10][4];
-    string c = "A";
-    cout << "Legend: " << endl;
-    cout << "X - Occupied Seat" << endl;
-    cout << "O - Vacant Seat" << endl;
-    cout << "\nSeating Plan:" << endl;
-    cout << "----------Front----------" << endl;
-    for(int i=0; i < 10; i++)
-    {
-        for(int j=0; j < 4; j++)
-        {
-            seatPlan[i][j] = to_string(i+1)+c+" "+"O";
-            cout << "|     "<< seatPlan[i][j] << "     |";
-        }
-        cout << "\n";
-    }
+    flight.printSeats();
     cout << "Choose the seat: ";
     cin >> seatChoice;
-    
+    return seatChoice;
 }
 
 int main() {
@@ -279,7 +312,7 @@ int main() {
                 choiceP = passengerMenu();
                 if(choiceP == 1)
                 {
-                    seatChoice = seatPlan();
+                    seatChoice = seatPlan(selectedFlight);
 
 
                 }
