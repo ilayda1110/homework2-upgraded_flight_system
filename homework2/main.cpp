@@ -37,7 +37,7 @@ public:
     }
 };
 
-class Seats
+class Seat
 {
 private:
     string seatNo;
@@ -47,6 +47,7 @@ public:
     void setOccupied(char o) { occupied = o; }
     string getSeatNo() { return seatNo; }
     char getOccupied() { return occupied; }
+
 };
 
 class Flight
@@ -59,7 +60,7 @@ private:
     vector<Passenger> passengers;
 
     //I added this one
-    Seats seats[10][4];
+    Seat seats[10][4];
 public:
     Flight(string n, string d): destination(d), maxSeats(40), flightNo(n), numPassengers(0)
     {
@@ -76,7 +77,7 @@ public:
         }
     }
     Flight() : maxSeats(40), numPassengers(0) {}
-    void reserveSeat(const Passenger& passenger);
+    bool reserveSeat(const Passenger& passenger);
     void cancelReservation(const Passenger& passenger);
     int numberOfPassengers() { return numPassengers; }
     void printPassengers();
@@ -103,13 +104,41 @@ public:
         temp.setPassengers(obj.numPassengers);
         return temp;
     }
-
-    void printSeats();
 };
 
-void Flight::reserveSeat(const Passenger &passenger)
+bool Flight::reserveSeat(const Passenger &passenger)
 {
+    string choice;
+    cout << "Legend: " << endl;
+    cout << "X - Occupied Seat" << endl;
+    cout << "O - Vacant Seat" << endl;
+    cout << "\nSeating Plan:" << endl;
+    cout << "----------Front----------" << endl;
 
+    for(int i=0; i < 10; i++)
+    {
+        for(int j=0; j < 4; j++)
+        {
+            cout << "|  " << seats[i][j].getSeatNo() << " " << seats[i][j].getOccupied() << "  ";
+        }
+        cout << "\n";
+    }
+    cout << "Choose: ";
+    cin >> choice;
+    for(int i=0; i < 10; i++)
+    {
+        for(int j=0; j < 4; j++)
+        {
+            if(seats[i][j].getSeatNo() == choice)
+            {
+                if(seats[i][j].getOccupied() == 'O')
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 void Flight::cancelReservation(const Passenger &passenger)
@@ -137,24 +166,6 @@ void Flight::printInfo()
     cout << flightNo << " / " << destination << endl;
     cout << "Available seat numbers: " << (maxSeats-numPassengers) << endl;
     cout << "\n";
-}
-
-void Flight::printSeats()
-{
-    cout << "Legend: " << endl;
-    cout << "X - Occupied Seat" << endl;
-    cout << "O - Vacant Seat" << endl;
-    cout << "\nSeating Plan:" << endl;
-    cout << "----------Front----------" << endl;
-
-    for(int i=0; i < 10; i++)
-    {
-        for(int j=0; j < 4; j++)
-        {
-            cout << "|  " << seats[i][j].getSeatNo() << " " << seats[i][j].getOccupied() << "  ";
-        }
-        cout << "\n";
-    }
 }
 
 class FlightManager
@@ -253,20 +264,11 @@ int passengerMenu()
     return opChoice;
 }
 
-string seatPlan(Flight flight)
-{
-    string seatChoice;
-    flight.printSeats();
-    cout << "Choose the seat: ";
-    cin >> seatChoice;
-    return seatChoice;
-}
-
 int main() {
 
     int choice, choiceP;
-    string flightNo, destination, seatChoice;
-    bool loop, checkRemoveF;
+    string flightNo, destination;
+    bool loop, checkRemoveF, checkReservation;
 
     FlightManager airline;
 
@@ -293,7 +295,7 @@ int main() {
             }
             else
             {
-                cout << "Could not removed" << endl;
+                cout << "Could not be removed" << endl;
             }
         }
         else if(choice == 3)
@@ -312,9 +314,16 @@ int main() {
                 choiceP = passengerMenu();
                 if(choiceP == 1)
                 {
-                    seatChoice = seatPlan(selectedFlight);
-
-
+                    Passenger passenger;
+                    checkReservation = selectedFlight.reserveSeat(passenger);
+                    if(checkReservation)
+                    {
+                        cout << "Successfully reserved" << endl;
+                    }
+                    else
+                    {
+                        cout << "Could not be reserved" << endl;
+                    }
                 }
                 else if(choiceP == 2)
                 {
