@@ -13,7 +13,6 @@ public:
     void setOccupied(char o) { occupied = o; }
     string getSeatNo() { return seatNo; }
     char getOccupied() { return occupied; }
-
 };
 
 class Passenger
@@ -38,24 +37,28 @@ public:
     void setName(string n) { name = n; }
     void setSurname(string s) { surname = s; }
     void setGender(char g) { gender = g; }
-    void setSeat(string n)
-    {
-        seat.setSeatNo(n);
-        seat.setOccupied('X');
-    }
     string getName() { return name; }
     string getSurname() { return surname; }
     char getGender() { return gender; }
-    friend void operator<<(ostream& os, const Passenger& pas)
+    friend void operator<<(ostream& os, Passenger& pas)
     {
         os << "\n";
         os << "Name: " << pas.name << endl;
         os << "Surname: " << pas.surname << endl;
         os << "Gender: " << pas.gender << endl;
+        os << "Seat: " << pas.seat.getSeatNo() << endl;
         os << "\n";
     }
+    void setSeat(string s)
+    {
+        seat.setSeatNo(s);
+        seat.setOccupied('X');
+    }
+    string getSeat()
+    {
+        return seat.getSeatNo();
+    }
 };
-
 
 class Flight
 {
@@ -76,7 +79,7 @@ public:
         {
             for(int j=0; j < 4; j++)
             {
-                seats[i][j].setSeatNo(to_string(i+1)+c);
+                seats[i][j].setSeatNo(to_string(i+1)+ c);
                 seats[i][j].setOccupied('O');
                 c++;
             }
@@ -84,8 +87,8 @@ public:
         }
     }
     Flight() : maxSeats(40), numPassengers(0) {}
-    bool reserveSeat(const Passenger& passenger);
-    bool cancelReservation(const Passenger& passenger);
+    bool reserveSeat(Passenger& passenger);
+    bool cancelReservation(Passenger& passenger);
     int numberOfPassengers() { return numPassengers; }
     void printPassengers();
     bool isFlyingTo(const string& destination);
@@ -113,7 +116,7 @@ public:
     }
 };
 
-bool Flight::reserveSeat(const Passenger &passenger)
+bool Flight::reserveSeat(Passenger &passenger)
 {
     string choice;
     cout << "Legend: " << endl;
@@ -141,7 +144,10 @@ bool Flight::reserveSeat(const Passenger &passenger)
                 if(seats[i][j].getOccupied() == 'O')
                 {
                     passenger.setSeat(seats[i][j].getSeatNo());
-
+                    passengers.push_back(passenger);
+                    seats[i][j].setOccupied('X');
+                    numPassengers++;
+                    maxSeats--;
                     return true;
                 }
             }
@@ -150,16 +156,35 @@ bool Flight::reserveSeat(const Passenger &passenger)
     return false;
 }
 
-bool Flight::cancelReservation(const Passenger &passenger)
+bool Flight::cancelReservation(Passenger &passenger)
 {
     for(int i=0; i < numPassengers; i++)
     {
-        if((passenger.getName() == passengers[i].getName()) && passenger.getSurname() == passengers[i].getSurname())
+        if((passenger.getName()==passengers[i].getName()) && (passenger.getSurname()==passengers[i].getSurname()))
         {
+            for(int t=0; t < 10; t++)
+            {
+                for(int k=0; k < 4; k++)
+                {
+                    if(seats[t][k].getSeatNo() == passenger.getSeat())
+                    {
+                        seats[t][k].setOccupied('O');
+                    }
+                }
+            }
 
+            for(int j=i+1; j < numPassengers; j++)
+            {
+                passengers[i].setName(passengers[j].getName());
+                passengers[i].setSurname(passengers[j].getSurname());
+                passengers[i].setGender(passengers[j].getGender());
+                passengers[i].setSeat(passengers[i].getSeat());
+            }
+            numPassengers--;
+            return true;
         }
     }
-
+    return false;
 }
 
 void Flight::printPassengers()
@@ -283,7 +308,7 @@ int main() {
 
     int choice, choiceP;
     string flightNo, destination;
-    bool loop, checkRemoveF, checkReservation;
+    bool loop, checkRemoveF, checkReservation, checkRemoveR;
 
     FlightManager airline;
 
@@ -342,11 +367,20 @@ int main() {
                 }
                 else if(choiceP == 2)
                 {
-
+                    Passenger passenger;
+                    checkRemoveR = selectedFlight.cancelReservation(passenger);
+                    if(checkReservation)
+                    {
+                        cout << "Successfully removed" << endl;
+                    }
+                    else
+                    {
+                        cout << "Could not be removed" << endl;
+                    }
                 }
                 else if(choiceP == 3)
                 {
-
+                    selectedFlight.printPassengers();
                 }
                 else if(choice == 4)
                 {
