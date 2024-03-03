@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -48,6 +49,10 @@ public:
         os << "Gender: " << pas.gender << endl;
         os << "Seat: " << pas.seat.getSeatNo() << endl;
         os << "\n";
+    }
+    bool operator==(const Passenger& pas)
+    {
+        return (name == pas.name && surname ==pas.surname);
     }
     void setSeat(string s)
     {
@@ -166,20 +171,14 @@ bool Flight::cancelReservation(Passenger &passenger)
             {
                 for(int k=0; k < 4; k++)
                 {
-                    if(seats[t][k].getSeatNo() == passenger.getSeat())
+                    if(seats[t][k].getSeatNo() == passengers[i].getSeat())
                     {
                         seats[t][k].setOccupied('O');
+                        break;
                     }
                 }
             }
-
-            for(int j=i+1; j < numPassengers; j++)
-            {
-                passengers[i].setName(passengers[j].getName());
-                passengers[i].setSurname(passengers[j].getSurname());
-                passengers[i].setGender(passengers[j].getGender());
-                passengers[i].setSeat(passengers[i].getSeat());
-            }
+            passengers.erase(find(passengers.begin(), passengers.end(), passenger));
             numPassengers--;
             return true;
         }
@@ -369,7 +368,7 @@ int main() {
                 {
                     Passenger passenger;
                     checkRemoveR = selectedFlight.cancelReservation(passenger);
-                    if(checkReservation)
+                    if(checkRemoveR)
                     {
                         cout << "Successfully removed" << endl;
                     }
