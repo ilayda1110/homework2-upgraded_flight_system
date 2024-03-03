@@ -4,6 +4,80 @@
 
 using namespace std;
 
+void alignSeat(string text)
+{
+    int space = 5 - text.length();
+    cout << text;
+    for(int i=0; i < space; i++)
+    {
+        cout << " ";
+    }
+}
+
+void alignName(string name, string surname)
+{
+    string fullName = name + " " + surname;
+    int space = 15 - fullName.length();
+    if(space >= 0 )
+    {
+        cout << fullName;
+        for(int i=0; i < space; i++)
+        {
+            cout << " ";
+        }
+    }
+    else
+    {
+        for(int j=0; j < 14; j++)
+        {
+            cout << fullName.at(j);
+        }
+        cout << ".";
+    }
+
+}
+
+bool checkName(string text)
+{
+    for(int i=0; i < text.length(); i++)
+    {
+        if((text.at(i) >= 'A' && text.at(i) <= 'Z') || (text.at(i) >= 'a' && text.at(i) <= 'z'))
+        {}
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool checkFlightNo(string text)
+{
+    if(text.length() > 7 || text.length() < 4)
+    {
+        return false;
+    }
+
+    if(!isalpha(text.at(0)) || !isalpha(text.at(1)))
+    {
+        return false;
+    }
+
+    if(text.at(2) != ' ')
+    {
+        return false;
+    }
+
+    for(int i=3; i < text.length(); i++)
+    {
+        if(!isdigit(text.at(i)))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 class Seat
 {
 private:
@@ -44,11 +118,11 @@ public:
     friend void operator<<(ostream& os, Passenger& pas)
     {
         os << "\n";
-        os << "Name: " << pas.name << endl;
-        os << "Surname: " << pas.surname << endl;
-        os << "Gender: " << pas.gender << endl;
-        os << "Seat: " << pas.seat.getSeatNo() << endl;
-        os << "\n";
+        alignSeat(pas.getSeat());
+        os << "|";
+        alignName(pas.getName(), pas.getSurname());
+        os << "|";
+        os << pas.gender << endl;
     }
     bool operator==(const Passenger& pas)
     {
@@ -152,7 +226,6 @@ bool Flight::reserveSeat(Passenger &passenger)
                     passengers.push_back(passenger);
                     seats[i][j].setOccupied('X');
                     numPassengers++;
-                    maxSeats--;
                     return true;
                 }
             }
@@ -188,6 +261,7 @@ bool Flight::cancelReservation(Passenger &passenger)
 
 void Flight::printPassengers()
 {
+    cout << "Seat |Passenger Name |Gender" << endl;
     for(int i=0; i < numPassengers; i++)
     {
         cout << passengers[i];
@@ -307,7 +381,7 @@ int main() {
 
     int choice, choiceP;
     string flightNo, destination;
-    bool loop, checkRemoveF, checkReservation, checkRemoveR;
+    bool loop, checkRemoveF, checkReservation, checkRemoveR, checkN, checkS, checkF;
 
     FlightManager airline;
 
@@ -316,17 +390,27 @@ int main() {
         choice = flightMenu();
         if(choice == 1)
         {
+            cin.ignore();
             cout << "Enter the flight number: ";
-            cin >> flightNo;
-            cout << "Enter the destination: ";
-            cin >> destination;
-            Flight flight(flightNo, destination);
-            airline.addFlight(flight);
+            getline(cin, flightNo);
+            checkF = checkFlightNo(flightNo);
+            if(checkF)
+            {
+                cout << "Enter the destination: ";
+                cin >> destination;
+                Flight flight(flightNo, destination);
+                airline.addFlight(flight);
+            }
+            else
+            {
+                cout << "Invalid flight number" << endl;
+            }
         }
         else if(choice == 2)
         {
+            cin.ignore();
             cout << "Enter the flight number: ";
-            cin >> flightNo;
+            getline(cin, flightNo);
             checkRemoveF = airline.removeFlight(flightNo);
             if(checkRemoveF)
             {
@@ -344,8 +428,9 @@ int main() {
         else if(choice == 4)
         {
             loop = true;
+            cin.ignore();
             cout << "Enter the flight number: ";
-            cin >> flightNo;
+            getline(cin, flightNo);
             Flight selectedFlight = airline.getFlightByNumber(flightNo);
 
             do
@@ -354,28 +439,48 @@ int main() {
                 if(choiceP == 1)
                 {
                     Passenger passenger;
-                    checkReservation = selectedFlight.reserveSeat(passenger);
-                    if(checkReservation)
+                    checkN = checkName(passenger.getName());
+                    checkS = checkName(passenger.getSurname());
+                    if(checkN && checkS)
                     {
-                        cout << "Successfully reserved" << endl;
+                        checkReservation = selectedFlight.reserveSeat(passenger);
+                        if(checkReservation)
+                        {
+                            cout << "Successfully reserved" << endl;
+                        }
+                        else
+                        {
+                            cout << "Could not be reserved" << endl;
+                        }
                     }
                     else
                     {
-                        cout << "Could not be reserved" << endl;
+                        cout << "Invalid name or surname" << endl;
                     }
+
                 }
                 else if(choiceP == 2)
                 {
                     Passenger passenger;
-                    checkRemoveR = selectedFlight.cancelReservation(passenger);
-                    if(checkRemoveR)
+                    checkN = checkName(passenger.getName());
+                    checkS = checkName(passenger.getSurname());
+                    if(checkN && checkS)
                     {
-                        cout << "Successfully removed" << endl;
+                        checkRemoveR = selectedFlight.cancelReservation(passenger);
+                        if(checkRemoveR)
+                        {
+                            cout << "Successfully removed" << endl;
+                        }
+                        else
+                        {
+                            cout << "Could not be removed" << endl;
+                        }
                     }
                     else
                     {
-                        cout << "Could not be removed" << endl;
+                        cout << "Invalid name or surname" << endl;
                     }
+
                 }
                 else if(choiceP == 3)
                 {
